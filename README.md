@@ -25,10 +25,7 @@ NeMo Cookbook is inspired by [`NeMo tutorials`](https://docs.nvidia.com/nemo-fra
 - Logging training and tuning runs with [Weights & Biases](https://wandb.ai/site)
 - Model alignment with [NeMo Aligner](https://github.com/NVIDIA/NeMo-Aligner)
 - Model output control with [NeMo Guardrails](https://github.com/NVIDIA/NeMo-Guardrails)
-- Agents as DAGs with [LangGraph](https://www.langchain.com/langgraph)
-- Agent traces with [LangSmith](https://www.langchain.com/langsmith)
 - Containerization with Docker
-- System prompt design
 
 ## Models
 
@@ -142,7 +139,7 @@ python finetune_llama3_8b.py
 > training: `python /workspace/pretrain_nemotron3_4b.py` <br/>
 
 > [!IMPORTANT]
-> regarding the NVIDIA Launchable: to avoid data storage costs, be certain to delete the instance once the demo is complete 
+> regarding the NVIDIA Launchable: to avoid data storage costs, be certain to delete the demo instance once the demo is complete 
 
 ## NeMo References
 
