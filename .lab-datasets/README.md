@@ -1,1 +1,0 @@
-The directory for the data cache
