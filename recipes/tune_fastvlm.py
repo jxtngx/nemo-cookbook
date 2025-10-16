@@ -6,16 +6,28 @@ from dataclasses import dataclass, field
 from typing import Union, Optional
 from pathlib import Path
 
+import torch
 import nemo.lightning as nl
 import nemo_run as run
-import torch
-from nemo.collections.llm import import_ckpt, LlamaConfig
-from nemo.collections import vlm
+
+from megatron.core.distributed import DistributedDataParallelConfig
 from megatron.core.transformer.transformer_config import TransformerConfig
+from nemo.collections import llm, vlm
+from nemo.collections.llm import import_ckpt, LlamaConfig
+from nemo.collections.llm.recipes.finetune_default import nemo_resume
+from nemo.collections.llm.recipes.precision.mixed_precision import bf16_mixed
+from nemo.collections.llm.recipes.optim.adam import (
+    distributed_fused_adam_with_cosine_annealing,
+)
+from nemo.collections.llm.recipes.log.default import wandb_logger
 from nemo.collections.vlm.vision.base import (
     HFCLIPVisionConfig,
     MultimodalProjectorConfig,
 )
+from nemo.lightning.pytorch.callbacks.megatron_comm_overlap import (
+    MegatronCommOverlapCallback,
+)
+from nemo.utils.exp_manager import TimingCallback
 
 # simple resolve to set cache dir
 filepath = Path(__file__)
@@ -24,6 +36,8 @@ cache_dir = os.path.join(rootpath, ".lab-models", "hugging-face")
 
 # name for NeMo run recipe
 NAME = "fastvlm_1B"
+# Specify the Hugging Face model ID
+HF_MODEL_ID = "apple/FastVLM-1.5B"
 
 
 @dataclass
@@ -133,13 +147,11 @@ def finetune_recipe(
             image_processor=None,
             num_workers=4,
         ),
-        log=llm.default_log(
-            dir=dir, name=name, tensorboard_logger=tensorboard_logger(name=name)
-        ),
+        log=llm.default_log(dir=dir, name=name, wandb_logger=wandb_logger(name=name)),
         optim=distributed_fused_adam_with_cosine_annealing(
             max_lr=2.0e-05, min_lr=2.0e-07, warmup_steps=150
         ),
-        resume=nemo_resume("llava-hf/llava-1.5-7b-hf"),
+        resume=nemo_resume(HF_MODEL_ID),
     )
 
     if peft_scheme is None or peft_scheme.lower() == "none":
@@ -166,13 +178,11 @@ def finetune_recipe(
 
 
 if __name__ == "__main__":
-    # Specify the Hugging Face model ID
-    hf_model_id = "apple/FastVLM-1.5B"
 
     # Import the model and convert to NeMo 2.0 format
     import_ckpt(
         model=vlm.LlavaModel(FastVLMConfig()),  # Model configuration
-        source=f"hf://{hf_model_id}",  # Hugging Face model source
+        source=f"hf://{HF_MODEL_ID}",  # Hugging Face model source
     )
 
     finetune = finetune_recipe(
