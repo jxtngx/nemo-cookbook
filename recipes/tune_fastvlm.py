@@ -8,7 +8,10 @@ from pathlib import Path
 
 import nemo.lightning as nl
 import nemo_run as run
+<<<<<<< HEAD
 import torch
+=======
+>>>>>>> origin/main
 from nemo.collections.llm import import_ckpt, LlamaConfig
 from nemo.collections import vlm
 from megatron.core.transformer.transformer_config import TransformerConfig
@@ -179,6 +182,10 @@ if __name__ == "__main__":
         name="fastvlm_1b_finetune",
         dir=cache_dir,
         num_nodes=1,
+<<<<<<< HEAD
         num_gpus_per_node=1,
+=======
+        num_gpus_per_node=8,
+>>>>>>> origin/main
         peft_scheme="lora",  # 'lora', 'none'
     )
