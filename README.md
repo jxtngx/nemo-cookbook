@@ -123,12 +123,12 @@ python finetune_llama3_8b.py
     </tr>
     <tr>
         <td>Pretrain</td>
-        <td><a target="_blank" href="https://hub.docker.com/repository/docker/jxtngx/nemo-lab/tags/train/sha256-e056f7988b875676e01a0ba2ae8fa4623ae28f0295a012f809e98158f413c2a2"><img src="https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=fff"/></a></td>
+        <td><a target="_blank" href="https://hub.docker.com/layers/jxtngx/nemo-lab/train"><img src="https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=fff"/></a></td>
         <td><a target="_blank" href="https://console.brev.dev/launchable/deploy?launchableID=env-2qcfxLVNihSWulFbpOYJmyy8kBB"><img src="https://brev-assets.s3.us-west-1.amazonaws.com/nv-lb-dark.svg"/></a></td>   
     </tr>
     <tr>
         <td>Finetune</td>
-        <td><a target="_blank" href="https://hub.docker.com/repository/docker/jxtngx/nemo-lab/tags/tune/sha256-29c27b9c41d633f48ed92aec40e33438b84fb3751e764df4655c9b2e697650d7"><img src="https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=fff"/></a></td>
+        <td><a target="_blank" href="https://hub.docker.com/layers/jxtngx/nemo-lab/tune"><img src="https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=fff"/></a></td>
         <td><a target="_blank" href="https://console.brev.dev/launchable/deploy?launchableID=env-2qcfslJNcRDEkHNGfhpW625D2SN"><img src="https://brev-assets.s3.us-west-1.amazonaws.com/nv-lb-dark.svg"/></a></td>
     </tr>
 </table>
