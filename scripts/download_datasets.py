@@ -5,7 +5,7 @@ from datasets import load_dataset
 
 # simple resolve to set cache dir
 filepath = Path(__file__)
-rootpath = filepath.parents[2]
+rootpath = filepath.parents[1]
 cache_dir = os.path.join(rootpath, ".lab-datasets", "cache")
 
 # load_dataset will check cache for existing download
