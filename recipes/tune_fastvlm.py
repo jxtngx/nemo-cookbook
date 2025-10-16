@@ -1,5 +1,4 @@
 # see https://docs.nvidia.com/nemo-framework/user-guide/latest/vlms/neva.html
-# code adapted from above for apple fastvlm variants
 
 import os
 from dataclasses import dataclass, field
@@ -7,6 +6,7 @@ from typing import Union, Optional
 from pathlib import Path
 
 import torch
+import pytorch_lightning as pl
 import nemo.lightning as nl
 import nemo_run as run
 
@@ -24,6 +24,7 @@ from nemo.collections.vlm.vision.base import (
     HFCLIPVisionConfig,
     MultimodalProjectorConfig,
 )
+from nemo.collections.vlm.neva.model.base import NevaModel
 from nemo.lightning.pytorch.callbacks.megatron_comm_overlap import (
     MegatronCommOverlapCallback,
 )
@@ -59,6 +60,47 @@ class FastVLMConfig(vlm.LlavaConfig):
             input_size=1024, hidden_size=4096, ffn_hidden_size=4096
         )
     )
+
+
+class FastVLMDataModule(pl.LightningDataModule): ...
+
+
+# adapted from NeMo
+class LlavaModel(NevaModel):
+    """Llava Model NeMo Wrapper"""
+
+    def __init__(
+        self,
+        config: Annotated[Optional[LlavaConfig], Config[LlavaConfig]] = None,
+        optim: Optional[OptimizerModule] = None,
+        tokenizer: Optional["TokenizerSpec"] = None,
+        model_transform: Optional[Callable[[nn.Module], nn.Module]] = None,
+    ):
+        super().__init__(
+            config or LlavaConfig(),
+            optim=optim,
+            tokenizer=tokenizer,
+            model_transform=model_transform,
+        )
+
+
+@run.cli.factory(name=NAME)
+def model() -> run.Config[pl.LightningModule]:
+    """
+    Factory function to create a FastVLM 1.5B model configuration.
+
+    Returns:
+        run.Config[pl.LightningModule]: Configuration for the FastVLM 1.5B model model.
+
+    Examples:
+        CLI usage:
+            $ nemo llm pretrain model=llava15_7b ...
+
+        Python API usage:
+            >>> model_config = model()
+            >>> print(model_config)
+    """
+    return run.Config(vlm.LlavaModel, config=run.Config(FastVLMConfig))
 
 
 @run.cli.factory(target=llm.finetune, name=NAME)
@@ -139,7 +181,7 @@ def finetune_recipe(
         model=model(),
         trainer=trainer,
         data=run.Config(
-            MockDataModule,
+            FastVLMDataModule,
             seq_length=4096,
             global_batch_size=128,
             micro_batch_size=2,
