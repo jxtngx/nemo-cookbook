@@ -146,5 +146,5 @@ dmypy.json
 .locks
 models--*
 
-# datasets
-.lab-datasets/cache
+# lab files
+.lab-*
