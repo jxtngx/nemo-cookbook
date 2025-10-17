@@ -2,10 +2,11 @@
 
 import os
 from dataclasses import dataclass, field
-from typing import Union, Optional
+from typing import TYPE_CHECKING, Annotated, Callable, Union, Optional
 from pathlib import Path
 
 import torch
+from torch import nn
 import pytorch_lightning as pl
 import nemo.lightning as nl
 import nemo_run as run
@@ -13,7 +14,7 @@ import nemo_run as run
 from megatron.core.distributed import DistributedDataParallelConfig
 from megatron.core.transformer.transformer_config import TransformerConfig
 from nemo.collections import llm, vlm
-from nemo.collections.llm import import_ckpt, LlamaConfig
+from nemo.collections.llm import import_ckpt, LlamaConfig, Config
 from nemo.collections.llm.recipes.finetune_default import nemo_resume
 from nemo.collections.llm.recipes.precision.mixed_precision import bf16_mixed
 from nemo.collections.llm.recipes.optim.adam import (
@@ -24,16 +25,21 @@ from nemo.collections.vlm.vision.base import (
     HFCLIPVisionConfig,
     MultimodalProjectorConfig,
 )
-from nemo.collections.vlm.neva.model.base import NevaModel
+from nemo.collections.vlm.neva.model.base import NevaModel, NevaConfig
+from nemo.lightning import OptimizerModule
 from nemo.lightning.pytorch.callbacks.megatron_comm_overlap import (
     MegatronCommOverlapCallback,
 )
 from nemo.utils.exp_manager import TimingCallback
 
+
+if TYPE_CHECKING:
+    from nemo.collections.common.tokenizers.tokenizer_spec import TokenizerSpec
+
 # simple resolve to set cache dir
 filepath = Path(__file__)
 rootpath = filepath.parents[1]
-cache_dir = os.path.join(rootpath, ".lab-models", "hugging-face")
+CACHE_DIR = os.path.join(rootpath, ".lab-models", "hugging-face")
 
 # name for NeMo run recipe
 NAME = "fastvlm_1B"
@@ -42,7 +48,7 @@ HF_MODEL_ID = "apple/FastVLM-1.5B"
 
 
 @dataclass
-class FastVLMConfig(vlm.LlavaConfig):
+class FastVLMConfig(NevaConfig):
     """FastVLM Config 1.5B"""
 
     from transformers import PretrainedConfig
@@ -71,13 +77,13 @@ class LlavaModel(NevaModel):
 
     def __init__(
         self,
-        config: Annotated[Optional[LlavaConfig], Config[LlavaConfig]] = None,
+        config: Annotated[Optional[FastVLMConfig], Config[FastVLMConfig]] = None,
         optim: Optional[OptimizerModule] = None,
         tokenizer: Optional["TokenizerSpec"] = None,
         model_transform: Optional[Callable[[nn.Module], nn.Module]] = None,
     ):
         super().__init__(
-            config or LlavaConfig(),
+            config or FastVLMConfig(),
             optim=optim,
             tokenizer=tokenizer,
             model_transform=model_transform,
@@ -94,7 +100,7 @@ def model() -> run.Config[pl.LightningModule]:
 
     Examples:
         CLI usage:
-            $ nemo llm pretrain model=llava15_7b ...
+            $ nemo llm pretrain model=fastvlm_1B ...
 
         Python API usage:
             >>> model_config = model()
@@ -112,7 +118,7 @@ def finetune_recipe(
     peft_scheme: Optional[str] = "none",
 ) -> run.Partial:
     """
-    Create a fine-tuning recipe for Llava1.5 7B model.
+    Create a fine-tuning recipe for FastVLM 1.5B model.
 
     This function sets up a complete configuration for fine-tuning, including
     model, trainer, data, logging, optimization, and resumption settings.
@@ -129,10 +135,10 @@ def finetune_recipe(
 
     Examples:
         CLI usage:
-            $ nemo llm finetune --factory llava15_7b
+            $ nemo llm finetune --factory fastvlm_1B
 
         Python API usage:
-            >>> recipe = finetune_recipe(name="llava15_7b_finetune", num_nodes=1)
+            >>> recipe = finetune_recipe(name="fastvlm_1B_finetune", num_nodes=1)
             >>> print(recipe)
 
     Note:
@@ -229,7 +235,7 @@ if __name__ == "__main__":
 
     finetune = finetune_recipe(
         name="fastvlm_1b_finetune",
-        dir=cache_dir,
+        dir=CACHE_DIR,
         num_nodes=1,
         num_gpus_per_node=1,
         peft_scheme="lora",  # 'lora', 'none'
