@@ -45,6 +45,10 @@ CACHE_DIR = os.path.join(rootpath, ".lab-models", "hugging-face")
 NAME = "fastvlm_1B"
 # Specify the Hugging Face model ID
 HF_MODEL_ID = "apple/FastVLM-1.5B"
+CLIP_MODEL_ID = "openai/clip-vit-large-patch14-336"
+# tuning datasets
+# see https://huggingface.co/datasets?task_categories=task_categories%3Aimage-to-text
+DATASET_ID = "facebook/winoground"
 
 
 @dataclass
@@ -58,7 +62,7 @@ class FastVLMConfig(NevaConfig):
     )
     vision_transformer_config: Union[TransformerConfig, PretrainedConfig] = field(
         default_factory=lambda: HFCLIPVisionConfig(
-            pretrained_model_name_or_path="openai/clip-vit-large-patch14-336"
+            pretrained_model_name_or_path=CLIP_MODEL_ID
         )
     )
     vision_projection_config: TransformerConfig = field(
