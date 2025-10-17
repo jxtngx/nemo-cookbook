@@ -48,6 +48,9 @@ HF_MODEL_ID = "apple/FastVLM-1.5B"
 CLIP_MODEL_ID = "openai/clip-vit-large-patch14-336"
 # tuning datasets
 # see https://huggingface.co/datasets?task_categories=task_categories%3Aimage-to-text
+# https://huggingface.co/datasets/nvidia/describe-anything-dataset
+# https://huggingface.co/datasets/google-research-datasets/conceptual_captions
+# https://huggingface.co/datasets/nvidia/Llama-Nemotron-VLM-Dataset-v1
 DATASET_ID = "facebook/winoground"
 
 
